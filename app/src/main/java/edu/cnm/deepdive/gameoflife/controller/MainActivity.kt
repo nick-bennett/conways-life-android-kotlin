@@ -27,7 +27,7 @@ import edu.cnm.deepdive.gameoflife.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private var viewModel: MainViewModel? = null
+    private lateinit var viewModel: MainViewModel
     private var running = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var handled = true
-        viewModel?.also {
+        viewModel.let {
             when (item.itemId) {
                 R.id.run -> it.start()
                 R.id.pause -> it.stop()
