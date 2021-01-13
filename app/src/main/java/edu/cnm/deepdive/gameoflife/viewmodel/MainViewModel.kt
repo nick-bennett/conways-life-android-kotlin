@@ -31,14 +31,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application), L
     private val terrain: MutableLiveData<Terrain?>
     private val generation: MutableLiveData<Long>
     private val population: MutableLiveData<Int>
+    private val rng: Random
+    private var runner: Runner? = null
 
     private val _running: MutableLiveData<Boolean>
     val running: LiveData<Boolean>
         get() = _running
-
     val density: MutableLiveData<Int>
-    private val rng: Random
-    private var runner: Runner? = null
 
     init {
         terrain = MutableLiveData(null)
@@ -70,24 +69,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application), L
 
     fun stop() {
         stopRunner(true)
-        _running.value = false
     }
 
     fun reset() {
         stop()
-        val terrain = Terrain(DEFAULT_TERRAIN_SIZE, density.value!! / 100.0, rng)
-        this.terrain.value = terrain
-        generation.value = terrain.iterationCount
+        val terrain = Terrain(DEFAULT_TERRAIN_SIZE, density.value!! / 100.0, rng).also {
+            this.terrain.value = it
+            generation.value = it.iterationCount
+            population.value = it.population
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     private fun pause() {
-        stopRunner(!running.value!!)
+        stopRunner(!(_running.value ?: false))
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     private fun resume() {
-        if (running.value!!) {
+        if (_running.value ?: false)  {
             startRunner()
         }
     }
@@ -113,7 +113,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), L
 
         override fun run() {
             while (running) {
-                val terrain = terrain.value?.also {
+                terrain.value?.let {
                     it.iterate()
                     generation.postValue(it.iterationCount)
                     population.postValue(it.population)

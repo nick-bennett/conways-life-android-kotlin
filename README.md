@@ -1,4 +1,4 @@
-# Conway's Game of Life (Android & Java)
+# Conway's Game of Life (Android & Kotlin)
 
 This project is used as the basis for a coding exercise in the
 [Deep Dive Coding](https://deepdivecoding.com/)
